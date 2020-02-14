@@ -1,0 +1,92 @@
+{
+  "customers": [
+    {
+      "id": 0,
+      "name": "Beauty Hair Salon",
+      "address": "123 State Street, Any City, TX  75100",
+      "contacts": {
+        "name": "Wendy Beauty",
+        "title": "Owner",
+        "phone": {
+          "type": "cell",
+          "number": "214-469-0011"
+        }
+      }
+    }
+  ],
+  "inventory": [
+    {
+      "productId": 0,
+      "status": [
+        {
+          "location": "available",
+          "quantity": 88
+        }
+      ]
+    },
+    {
+      "productId": 1,
+      "status": [
+        {
+          "location": "available",
+          "quantity": 4
+        }
+      ]
+    }
+  ],
+  "orders": [
+    {
+      "id": 0,
+      "number": 1001,
+      "customerId": 0,
+      "products": [
+        {
+          "productId": 0,
+          "cost": 209.00,
+          "discounts": [
+            {
+              "amount": 20.00,
+              "reason": "Multi-sign discount"
+            }
+          ],
+          "fees": [
+            {
+              "amount": 75.00,
+              "reason": "Sign permit"
+            }
+          ]
+        },
+        {
+          "productId": 0,
+          "cost": 209.00,
+          "discounts": [
+            {
+              "amount": 20.00,
+              "reason": "Multi-sign discount"
+            }
+          ],
+          "fees": [
+            {
+              "amount": 75.00,
+              "reason": "Sign permit"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "products": [
+    {
+      "id": 0,
+      "name": "Master Sign 5' x 10'",
+      "cost": 209.00,
+      "hasSerial": "False"
+    },
+    {
+      "id": 1,
+      "name": "Master Sign 4' x 8'",
+      "cost": 189.00,
+      "hasSerial": "False"
+    }
+  ]
+}
