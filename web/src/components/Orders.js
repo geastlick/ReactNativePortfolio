@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 
 class Orders extends Component {
     componentDidMount() {
-        this.props.fetchOrders();
+        if(this.props.orders.orders.length === 0) this.props.fetchOrders();
       }
 
         render() {

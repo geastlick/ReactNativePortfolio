@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 
 class Customers extends Component {
     componentDidMount() {
-        this.props.fetchCustomers();
+        if(this.props.customers.customers.length === 0) this.props.fetchCustomers();
       }
 
       render() {

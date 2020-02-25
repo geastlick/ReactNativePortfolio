@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 
 class Inventory extends Component {
     componentDidMount() {
-        this.props.fetchInventory();
+        if(this.props.inventory.inventory.length === 0) this.props.fetchInventory();
       }
 
         render() {

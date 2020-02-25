@@ -3,52 +3,58 @@ const bodyParser = require('body-parser')
 const jsonServer = require('json-server')
 const jwt = require('jsonwebtoken')
 const path = require('path')
+const axios = require('axios').default;
 
 const server = jsonServer.create()
-const router = jsonServer.router(path.join(__dirname, './json/db.json'))
-const userdb = JSON.parse(fs.readFileSync(path.join(__dirname, './db/users.json'), 'UTF-8'))
+const router = jsonServer.router(path.join(__dirname, './db.json'))
 const middlewares = jsonServer.defaults()
+const cert = fs.readFileSync('public.pem');
+const auth = require('./oauth')
 server.use(bodyParser.urlencoded({extended: true}))
 server.use(bodyParser.json())
 
-const SECRET_KEY = '123456789'
-const expiresIn = '1h'
-
-// Create a token from a payload 
-function createToken(payload){
-  return jwt.sign(payload, SECRET_KEY, {expiresIn})
-}
-
 // Verify the token 
 function verifyToken(token){
-  return  jwt.verify(token, SECRET_KEY, (err, decode) => decode !== undefined ?  decode : err)
+  return  jwt.verify(token, cert, {
+    audience: auth.CLIENT_ID,
+    issuer: auth.ISSUER
+  }, (err, decode) => decode !== undefined ?  decode : err)
 }
 
-// Check if the user exists in database
-function isAuthenticated(username, password){
-  return userdb.users.findIndex(user => user.username === username && user.password === password) !== -1
-}
-
-function getUser(username) {
-  const user = userdb.users.filter(user => username === user.username)[0];
-  return { username: user.username, name: user.name, email: user.email };
+function getUser(payload) {
+  return { name: payload.name, email: payload.email };
 }
 
 server.post('/auth/login', (req, res) => {
   const {username, password} = req.body
-  if (isAuthenticated(username, password) === false) {
-    const status = 401
-    const message = 'Incorrect email or password'
-    res.status(status).json({status, message})
-    return
-  }
-  const access_token = createToken({username})
-  const user = getUser(username);
-  res.status(200).json({access_token, user})
+  axios.post(auth.TOKEN_URL, {
+    grant_type: auth.GRANT_TYPE,
+    username: username,
+    password: password,
+    client_id: auth.CLIENT_ID,
+    realm: auth.REALM
+  })
+  .then(response => {
+    const data=response.data;
+    const payload=verifyToken(data.id_token)
+    if(!payload.message) {
+      console.log('login - verifyToken passed')
+      const user = getUser(payload);
+      res.status(200).json({access_token: data.id_token, user});
+    } else {
+      console.log('login - verifyToken failed')
+      res.status(401).json({status: 401, message: 'Incorrect email or password'})
+    }
+  })
+  .catch(error => {
+    console.log('login - ' + error)
+    res.status(401).json({status: 401, message: 'Incorrect email or password'})
+  });
 })
 
 server.get('/auth/user', (req, res) => {
   if (req.headers.authorization === undefined || req.headers.authorization.split(' ')[0] !== 'Bearer') {
+    console.log('user - Bad authorization header')
     const status = 401
     const message = 'Bad authorization header'
     res.status(status).json({status, message})
@@ -56,27 +62,42 @@ server.get('/auth/user', (req, res) => {
   }
   try {
      const token = req.headers.authorization.split(' ')[1];
-     verifyToken(token)
-     const user = getUser(token.payload);
-     res.status(200).json({user})
+     const payload=verifyToken(token)
+     if(!payload.message) {
+        console.log('user - Token is valid')
+        const user = getUser(payload)
+        console.log(user)
+        res.status(200).json({user})
+      } else {
+        console.log('user - Token failed verify', payload.message)
+        res.status(401).json({status: 401, message: 'Incorrect email or password'})
+      }
      } catch (err) {
-    const status = 401
-    const message = 'Error: access_token is not valid'
-    res.status(status).json({status, message})
+        console.log('user - Error: ' + err)
+        const status = 401
+        const message = 'Error: access_token is not valid'
+        res.status(status).json({status, message})
   }
 })
 
 server.use(/^(?!\/auth|\/images).*$/,  (req, res, next) => {
   if (req.headers.authorization === undefined || req.headers.authorization.split(' ')[0] !== 'Bearer') {
+    console.log('protected - bad header')
     const status = 401
     const message = 'Bad authorization header'
     res.status(status).json({status, message})
     return
   }
   try {
-     verifyToken(req.headers.authorization.split(' ')[1])
-     next()
+    const payload=verifyToken(req.headers.authorization.split(' ')[1])
+    if (!payload.message) {
+      console.log('protected - Token passed verify')
+      next()
+    } else {
+      console.log('protected - Token failed verify', payload.message)
+    }
   } catch (err) {
+    console.log('protected - Error: ' + err)
     const status = 401
     const message = 'Error: access_token is not valid'
     res.status(status).json({status, message})
@@ -85,6 +106,6 @@ server.use(/^(?!\/auth|\/images).*$/,  (req, res, next) => {
 
 server.use(middlewares)
 server.use('/api', router)
-server.listen(3006, () => {
+server.listen(3006, '192.168.2.163', () => {
   console.log('JSON Server is running on 3006')
 })

@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 
 class Products extends Component {
     componentDidMount() {
-        this.props.fetchProducts();
+        if(this.props.products.products.length === 0) this.props.fetchProducts();
       }
 
         render() {

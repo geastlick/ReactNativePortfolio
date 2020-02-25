@@ -24,7 +24,7 @@ const mapStateToProps = state => {
     inventory: state.inventory,
     orders: state.orders,
     products: state.products,
-    users: state.users
+    users: state.users,
   };
 };
 
@@ -35,7 +35,7 @@ const mapDispatchToProps = {
   fetchProducts: () => (fetchProducts()),
   userLogin: (username, password) => (userLogin(username, password)),
   userLogout: () => (userLogout()),
-  fetchProfile: () => (fetchProfile())
+  fetchProfile: () => (fetchProfile()),
 }
 
 const NavBar = (props) => {
@@ -73,10 +73,24 @@ class App extends Component {
           <Route path="/contact" component={ContactUs} />
           <Route path="/about" component={AboutUs} />
           <Route path="/signin" render={() => <SignIn users={this.props.users} userLogin={this.props.userLogin} />} />
-          <PrivateRoute path="/customer" component={Customers} currentUser={this.props.users.currentUser} fetchCustomers={this.props.fetchCustomers} customers={this.props.customers} />
-          <PrivateRoute path="/inventory" component={Inventory} currentUser={this.props.users.currentUser} fetchInventory={this.props.fetchInventory} inventory={this.props.inventory} />
-          <PrivateRoute path="/order" component={Orders} currentUser={this.props.users.currentUser} fetchOrders={this.props.fetchOrders} orders={this.props.orders} />
-          <PrivateRoute path="/product" component={Products} currentUser={this.props.users.currentUser} fetchProducts={this.props.fetchProducts} products={this.props.products} />
+
+          <PrivateRoute path="/customer" component={Customers} currentUser={this.props.users.currentUser}
+                       fetchCustomers={this.props.fetchCustomers} fetchInventory={this.props.fetchInventory} fetchOrders={this.props.fetchOrders} fetchProducts={this.props.fetchProducts}
+                       customers={this.props.customers} inventory={this.props.inventory} orders={this.props.orders} products={this.props.products}
+           />
+          <PrivateRoute path="/inventory" component={Inventory} currentUser={this.props.users.currentUser}
+                       fetchCustomers={this.props.fetchCustomers} fetchInventory={this.props.fetchInventory} fetchOrders={this.props.fetchOrders} fetchProducts={this.props.fetchProducts}
+                       customers={this.props.customers} inventory={this.props.inventory} orders={this.props.orders} products={this.props.products}
+           />
+          <PrivateRoute path="/order" component={Orders} currentUser={this.props.users.currentUser}
+                       fetchCustomers={this.props.fetchCustomers} fetchInventory={this.props.fetchInventory} fetchOrders={this.props.fetchOrders} fetchProducts={this.props.fetchProducts}
+                       customers={this.props.customers} inventory={this.props.inventory} orders={this.props.orders} products={this.props.products}
+           />
+          <PrivateRoute path="/product" component={Products} currentUser={this.props.users.currentUser}
+                       fetchCustomers={this.props.fetchCustomers} fetchInventory={this.props.fetchInventory} fetchOrders={this.props.fetchOrders} fetchProducts={this.props.fetchProducts}
+                       customers={this.props.customers} inventory={this.props.inventory} orders={this.props.orders} products={this.props.products}
+           />
+
           <Redirect to="/home" />
         </Switch>
         <AppFooter />

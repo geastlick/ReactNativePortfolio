@@ -1,16 +1,19 @@
 import * as ActionTypes from './ActionTypes';
+import * as SecureStore from 'expo-secure-store';
+import { baseUrl } from './baseUrl';
 
 export const fetchCustomers = () => dispatch => {
     dispatch(customersLoading());
-    const token = localStorage.token;
-
-    return fetch('/api/customers', {
-        headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'Authorization': `Bearer ${token}`
-        }
-    })
+    SecureStore.getItemAsync("token")
+        .then(token => {
+            return fetch(baseUrl + '/api/customers', {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+        })
         .then(response => {
             if (response.ok) {
                 return response;
@@ -45,15 +48,17 @@ export const addCustomers = customers => ({
 
 export const fetchInventory = () => dispatch => {
     dispatch(inventoryLoading());
-    const token = localStorage.token;
 
-    return fetch('/api/inventory', {
-        headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'Authorization': `Bearer ${token}`
-        }
-    })
+    SecureStore.getItemAsync("token")
+        .then(token => {
+            return fetch(baseUrl + '/api/inventory', {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+        })
         .then(response => {
             if (response.ok) {
                 return response;
@@ -88,15 +93,17 @@ export const addInventory = inventory => ({
 
 export const fetchOrders = () => dispatch => {
     dispatch(ordersLoading());
-    const token = localStorage.token;
 
-    return fetch('/api/orders', {
-        headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'Authorization': `Bearer ${token}`
-        }
-    })
+    SecureStore.getItemAsync("token")
+        .then(token => {
+            return fetch(baseUrl + '/api/orders', {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+        })
         .then(response => {
             if (response.ok) {
                 return response;
@@ -131,15 +138,17 @@ export const addOrders = orders => ({
 
 export const fetchProducts = () => dispatch => {
     dispatch(productsLoading());
-    const token = localStorage.token;
 
-    return fetch('/api/products', {
-        headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'Authorization': `Bearer ${token}`
-        }
-    })
+    SecureStore.getItemAsync("token")
+        .then(token => {
+            return fetch(baseUrl + '/api/products', {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+        })
         .then(response => {
             if (response.ok) {
                 return response;
@@ -184,7 +193,7 @@ export const userLogin = (username, password) => dispatch => {
         password: password
     };
 
-    return fetch('/auth/login', {
+    return fetch(baseUrl + '/auth/login', {
         method: "POST",
         body: JSON.stringify(credentials),
         headers: {
@@ -207,11 +216,11 @@ export const userLogin = (username, password) => dispatch => {
             }
         )
         .then(data => {
-            localStorage.setItem("token", data.access_token)
+            SecureStore.setItemAsync("token", data.access_token)
             dispatch(loginUser(data.user))
         })
         .catch(
-            error => dispatch(loginFailed(error.message))
+            error => dispatch(loginFailed(`${baseUrl}/auth/login ${error.message}`))
         );
 };
 export const loginFailed = errMess => ({
@@ -224,32 +233,32 @@ const logoutUser = userObj => ({
     type: ActionTypes.LOGOUT_USER
 })
 export const userLogout = () => dispatch => {
-    localStorage.removeItem("token")
+    SecureStore.deleteItemAsync("token")
     dispatch(logoutUser())
 };
 
 export const fetchProfile = () => {
     return dispatch => {
-        const token = localStorage.token;
-        if (token) {
-            return fetch("/auth/user", {
-                method: "GET",
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                }
-            })
-                .then(resp => resp.json())
-                .then(data => {
-                    if (data.message) {
-                        // An error will occur if the token is invalid.
-                        // If this happens, you may want to remove the invalid token.
-                        localStorage.removeItem("token")
-                    } else {
-                        dispatch(loginUser(data.user))
+        SecureStore.getItemAsync("token")
+            .then(token => {
+                return fetch(baseUrl + "/auth/user", {
+                    method: "GET",
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'Authorization': `Bearer ${token}`
                     }
                 })
-        }
+            })
+            .then(resp => resp.json())
+            .then(data => {
+                if (data.message) {
+                    // An error will occur if the token is invalid.
+                    // If this happens, you may want to remove the invalid token.
+                    SecureStore.deleteItemAsync("token")
+                } else {
+                    dispatch(loginUser(data.user))
+                }
+            })
     }
 }
