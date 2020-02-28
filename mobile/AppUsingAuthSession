@@ -3,8 +3,8 @@ import { StyleSheet, Text, View, Button, Alert } from 'react-native';
 import { AuthSession } from 'expo';
 import jwtDecode from 'jwt-decode';
 
-const APP_ID = 'qDM1U9tdn81TYDYXacMHbwkqXFfxiTE1';
-const APP_DOMAIN = 'https://dev-jud9r78o.auth0.com';
+const APP_ID = '{appid}';
+const APP_DOMAIN = '{appdomain}';
 
 function toQueryString(params) {
   return '?' + Object.entries(params)
