@@ -64,22 +64,22 @@ class AppNavbar extends Component {
                                 <Nav className="navbar-nav mr-auto mt-2 mt-lg-0" navbar>
                                     <NavItem>
                                         <NavLink className="nav-link" to="/customer">
-                                            <i className="fa fa-home fa-lg" /> Customers
+                                            <i className="fa fa-users fa-lg" /> Customers
                                                 </NavLink>
                                     </NavItem>
                                     <NavItem>
                                         <NavLink className="nav-link" to="/product">
-                                            <i className="fa fa-envelope fa-lg" /> Products
+                                            <i className="fa fa-tags fa-lg" /> Products
                                                 </NavLink>
                                     </NavItem>
                                     <NavItem>
                                         <NavLink className="nav-link" to="/order">
-                                            <i className="fa fa-question-circle fa-lg" /> Orders
+                                            <i className="fa fa-shopping-cart fa-lg" /> Orders
                                                 </NavLink>
                                     </NavItem>
                                     <NavItem>
                                         <NavLink className="nav-link" to="/inventory">
-                                            <i className="fa fa-question-circle fa-lg" /> Inventory
+                                            <i className="fa fa-barcode fa-lg" /> Inventory
                                                 </NavLink>
                                     </NavItem>
                                 </Nav>

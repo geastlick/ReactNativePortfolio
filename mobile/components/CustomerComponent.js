@@ -1,13 +1,16 @@
 import React, { Component } from "react";
-import { View } from "react-native";
+import { View, Text } from "react-native";
 import { connect } from 'react-redux';
+import { fetchCustomers } from '../redux/ActionCreators';
 
 const mapStateToProps = state => {
     return {
         customers: state.customers,
-        orders: state.orders,
-        products: state.products
     }
+}
+
+const mapDispatchToProps = {
+    fetchCustomers: () => (fetchCustomers())
 }
 
 class Customer extends Component {
@@ -15,9 +18,13 @@ class Customer extends Component {
         title: 'Customers'
     }
 
+    componentDidMount() {
+        this.props.fetchCustomers();
+    }
+
     render() {
-        return <View></View>;
+        return <View><Text>{JSON.stringify(this.props.customers.customers)}</Text></View>;
     }
 }
 
-export default Customer;
+export default connect(mapStateToProps,mapDispatchToProps)(Customer);

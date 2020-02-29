@@ -4,14 +4,17 @@ import { createSwitchNavigator, createAppContainer } from 'react-navigation';
 import { createStackNavigator } from 'react-navigation-stack';
 import 'react-native-gesture-handler';
 import { createDrawerNavigator, DrawerItems } from 'react-navigation-drawer';
-import { ScrollView, StyleSheet, Text, View,
-     Image, ActivityIndicator, Alert, TouchableOpacity } from 'react-native';
+import {
+    ScrollView, StyleSheet, Text, View,
+    Image, ActivityIndicator, Alert, TouchableOpacity
+} from 'react-native';
 import { Icon } from 'react-native-elements';
 
 import Customer from './CustomerComponent';
 import Login from './LoginComponent';
-import Map from './MapComponent';
+import Inventory from './InventoryComponent';
 import Order from './OrderComponent';
+import Product from './ProductComponent';
 
 import { connect } from "react-redux";
 import { userLogout } from '../redux/ActionCreators'
@@ -45,7 +48,7 @@ const LoginNavigator = createStackNavigator(
 
 const CustomerNavigator = createStackNavigator(
     {
-        Customer: { screen: Customer }
+        Customers: { screen: Customer }
     },
     {
         navigationOptions: ({ navigation }) => ({
@@ -57,7 +60,7 @@ const CustomerNavigator = createStackNavigator(
                 color: '#fff'
             },
             headerLeft: <Icon
-                name='sign-in'
+                name='users'
                 type='font-awesome'
                 iconStyle={styles.stackIcon}
                 onPress={() => navigation.toggleDrawer()}
@@ -87,9 +90,31 @@ const OrderNavigator = createStackNavigator(
         })
     }
 );
-const MapNavigator = createStackNavigator(
+const InventoryNavigator = createStackNavigator(
     {
-        Map: { screen: Map }
+        Inventory: { screen: Inventory }
+    },
+    {
+        navigationOptions: ({ navigation }) => ({
+            headerStyle: {
+                backgroundColor: '#5637DD'
+            },
+            headerTintColor: '#fff',
+            headerTitleStyle: {
+                color: '#fff'
+            },
+            headerLeft: <Icon
+                name='sign-in'
+                type='font-awesome'
+                iconStyle={styles.stackIcon}
+                onPress={() => navigation.toggleDrawer()}
+            />
+        })
+    }
+);
+const ProductNavigator = createStackNavigator(
+    {
+        Product: { screen: Product }
     },
     {
         navigationOptions: ({ navigation }) => ({
@@ -121,37 +146,44 @@ const CustomAuthDrawerContentComponent = props => (
             </View>
         </View>
         <DrawerItems {...props} />
-        </ScrollView>
+    </ScrollView>
 );
 
 class Logout extends Component {
     constructor(props) {
         super(props);
     }
-     
+
     render() {
         return (
-        <TouchableOpacity onPress={() => 
-            Alert.alert(
-                            'Log out',
-                            'Do you want to logout?',
-                            [
-                                { text: 'Cancel', onPress: () => { 
-                                    this.props.navigation.closeDrawer();
-                                    return null;
-                                 } },
-                                {
-                                    text: 'Confirm', onPress: () => {
-                                        this.props.userLogout();
-                                        this.props.navigation.navigate('Auth');
-                                    }
-                                },
-                            ],
-                            { cancelable: false }
-                        )
-                    }>
-                        <Text style={{ margin: 16, fontWeight: 'bold' }}>Logout</Text>
-                    </TouchableOpacity>
+            <TouchableOpacity onPress={() =>
+                Alert.alert(
+                    'Log out',
+                    'Do you want to logout?',
+                    [
+                        {
+                            text: 'Cancel', onPress: () => {
+                                this.props.navigation.closeDrawer();
+                                return null;
+                            }
+                        },
+                        {
+                            text: 'Confirm', onPress: () => {
+                                this.props.userLogout();
+                                this.props.navigation.navigate('Auth');
+                            }
+                        },
+                    ],
+                    { cancelable: false }
+                )
+            }>
+                <View style={{ flexDirection: 'row', height: 50, padding: 0, margin: 0, alignItems: 'center' }}>
+                    <Icon name='sign-out'
+                        type='font-awesome'
+                        iconStyle={styles.stackIcon}
+                        onPress={() => navigation.toggleDrawer()}
+                    /><Text style={{ marginLeft: 30, fontWeight: 'bold' }}>Logout</Text></View>
+            </TouchableOpacity>
         );
     }
 }
@@ -200,12 +232,12 @@ const AuthStack = createDrawerNavigator(
 
 const AppStack = createDrawerNavigator(
     {
-        Customer: {
+        Customers: {
             screen: CustomerNavigator,
             navigationOptions: {
                 drawerIcon: ({ tintColor }) => (
                     <Icon
-                        name='home'
+                        name='users'
                         type='font-awesome'
                         size={24}
                         color={tintColor}
@@ -213,12 +245,12 @@ const AppStack = createDrawerNavigator(
                 )
             }
         },
-        Map: {
-            screen: MapNavigator,
+        Products: {
+            screen: ProductNavigator,
             navigationOptions: {
                 drawerIcon: ({ tintColor }) => (
                     <Icon
-                        name='home'
+                        name='tags'
                         type='font-awesome'
                         size={24}
                         color={tintColor}
@@ -226,12 +258,25 @@ const AppStack = createDrawerNavigator(
                 )
             }
         },
-        Order: {
+        Orders: {
             screen: OrderNavigator,
             navigationOptions: {
                 drawerIcon: ({ tintColor }) => (
                     <Icon
-                        name='home'
+                        name='shopping-cart'
+                        type='font-awesome'
+                        size={24}
+                        color={tintColor}
+                    />
+                )
+            }
+        },
+        Inventory: {
+            screen: InventoryNavigator,
+            navigationOptions: {
+                drawerIcon: ({ tintColor }) => (
+                    <Icon
+                        name='barcode'
                         type='font-awesome'
                         size={24}
                         color={tintColor}
@@ -241,7 +286,7 @@ const AppStack = createDrawerNavigator(
         }
     },
     {
-        initialRouteName: 'Customer',
+        initialRouteName: 'Customers',
         drawerBackgroundColor: '#CEC8FF',
         contentComponent: CustomAppDrawerContentComponent
     }
@@ -292,6 +337,28 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         paddingTop: Platform.OS === 'ios' ? 0 : Expo.Constants.statusBarHeight
     },
+    drawerHeader: {
+        backgroundColor: '#5637DD',
+        height: 120,
+        alignItems: 'center',
+        justifyContent: 'center',
+        flex: 1,
+        flexDirection: 'row'
+    },
+    drawerHeaderText: {
+        color: '#fff',
+        fontSize: 24,
+        fontWeight: 'bold'
+    },
+    stackIcon: {
+        marginLeft: 20,
+        color: '#fff',
+        fontSize: 24
+    },
+    drawerImage: {
+        height: 50,
+        width: 50
+    }
 });
 
 export const AppContainer = createAppContainer(Routes);
